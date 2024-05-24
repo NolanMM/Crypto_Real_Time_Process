@@ -27,8 +27,9 @@ st.markdown("""
         align-items: center;
     }
     .block-container {
+        text-align: center;
         width: 100%;
-        max-width: 1200px;
+        max-width: 1800px;
         margin: 0 auto;
     }
     .chart-container {
@@ -55,15 +56,39 @@ enddate = st.sidebar.date_input("Select end date")
 if st.sidebar.button("Submit"):
     if re.match(pattern, text_input):
         data = yf.download(text_input, start=startdate, end=enddate)
-        fig = px.line(data, x=data.index, y=data["Adj Close"], title=text_input)
-        fig.update_layout(width=1000, height=500)
-        st.plotly_chart(fig)
 
-        pricing, fundamentals_data, news = st.tabs(["Pricing", "Fundamentals", "Top News"])
+        realtime_data, summary_stats, pricing, fundamentals_data, news = st.tabs(["Real Time Data","Summary Statistic","Pricing", "Fundamentals", "Top News"])
+
+        with realtime_data:
+            st.header("Real Time Data")
+            st.write(data.tail())
+
+        with summary_stats:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.subheader("Adj Close Price Over Time")
+                fig = px.line(data, x=data.index, y=data["Adj Close"], title=text_input)
+                #fig.update_layout(width=1000, height=500)
+                st.plotly_chart(fig)
+            
+            with col2:
+                st.subheader("Volume Over Time")
+                fig = px.line(data, x=data.index, y=data["Volume"], title=text_input)
+                #fig.update_layout(width=1000, height=500)
+                st.plotly_chart(fig)
+            
+            st.subheader("Moving Average")
+            num_days = st.slider("Select number of days", min_value=5, max_value=200)
+
+            Moving_Average_Chart = st.empty()
+            ## Fixing Later
+            Moving_Average_Chart.line_chart(data["Adj Close"].rolling(window=num_days).mean())
+
 
         with pricing:
             st.header("Price Movement")
             data_ = data.copy()
+            
             data_["% Change"] = data_["Adj Close"] / data_["Adj Close"].shift(1) - 1
             data_.dropna(inplace=True)
             st.write(data_)

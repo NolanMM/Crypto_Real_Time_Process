@@ -9,7 +9,7 @@ import os
 
 class CryptoPriceProducerStreaming:
     def __init__(self):
-        load_dotenv(override=True)
+        load_dotenv("../.env",override=True)
         self.bootstrap_servers = os.getenv('BOOSTRAP_SERVERS')
         self.socket_url = os.getenv('SOCKET_URL')
 
@@ -58,6 +58,9 @@ class CryptoPriceProducerStreaming:
         ws.run_forever()
 
 
-if __name__ == "__main__":
+def main():
     streamer = CryptoPriceProducerStreaming()
     streamer.run()
+
+if __name__ == "__main__":
+    main()
